@@ -63,12 +63,14 @@ void DeviceDialog::onDeviceSelected()
     btnUpdate->setEnabled(true);
     btnDelete->setEnabled(true);
 
+    DeviceConfig* device = deviceController->getDevice(idx);
+
     // 回填 UI 狀態
-    txtName->setText(g_devices[idx].deviceName);
-    comboType->setCurrentIndex(g_devices[idx].deviceType);
-    chkActive->setChecked(g_devices[idx].isActive);
-    chkAutoMode->setChecked(g_devices[idx].hasAutoMode);
-    chkCalibrated->setChecked(g_devices[idx].isCalibrated);
+    txtName->setText(device->deviceName);
+    comboType->setCurrentIndex(device->deviceType);
+    chkActive->setChecked(device->isActive);
+    chkAutoMode->setChecked(device->hasAutoMode);
+    chkCalibrated->setChecked(device->isCalibrated);
     txtThreshold->setText(QString::number(g_devices[idx].thresholdValue));
 }
 
