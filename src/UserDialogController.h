@@ -9,4 +9,5 @@ public:
     ~UserDialogController();
 
     UserInfo* getUserInfo(int idx) const;
+    void setUserInfo(int idx, UserInfo* userInfo);
 };

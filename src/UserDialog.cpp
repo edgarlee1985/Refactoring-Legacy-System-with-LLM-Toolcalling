@@ -76,10 +76,14 @@ void UserDialog::onUpdateUser()
     int idx = listUsers->currentRow();
     if (idx < 0 || idx >= g_userCount) return;
 
-    g_users[idx].username = txtUsername->text();
+    UserInfo* userInfo = new UserInfo;
+
+    userInfo->username = txtUsername->text();
     // 預設不允許透過 UI 更改 Admin 核心權限，這裡維持原本的 isAdmin 狀態
-    g_users[idx].canEditDevices = chkEditDevice->isChecked();
-    g_users[idx].canRunOps = chkRunOps->isChecked();
+    userInfo->canEditDevices = chkEditDevice->isChecked();
+    userInfo->canRunOps = chkRunOps->isChecked();
+
+    userController->setUserInfo(idx, userInfo);
 
     QMessageBox::information(this, "Updated", "User data updated successfully.");
     
