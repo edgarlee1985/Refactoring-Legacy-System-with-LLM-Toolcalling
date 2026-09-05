@@ -9,6 +9,8 @@
 #include <QListWidget>
 #include "GlobalData.h"
 
+class DeviceDialogController;
+
 class DeviceDialog : public QDialog {
     Q_OBJECT
 public:
@@ -32,4 +34,6 @@ private:
     QPushButton* btnSave;
     QPushButton* btnUpdate;
     QPushButton* btnDelete;
+
+    DeviceDialogController* deviceController;
 };

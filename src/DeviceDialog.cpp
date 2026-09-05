@@ -1,8 +1,11 @@
 #include "DeviceDialog.h"
+#include "DeviceDialogController.h"
 
 DeviceDialog::DeviceDialog(QWidget *parent)
 : QDialog(parent)
 {
+    deviceController = new DeviceDialogController;
+
     setWindowTitle("Device Configuration (Legacy)");
     QVBoxLayout* layout = new QVBoxLayout(this);
 
