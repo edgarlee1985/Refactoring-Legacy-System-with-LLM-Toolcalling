@@ -101,13 +101,7 @@ void DeviceDialog::onDeleteClicked()
     int idx = listDevices->currentRow();
     if (idx < 0 || idx >= g_deviceCount) return;
 
-    // 將刪除目標後方的所有 Device 往前移
-    for (int i = idx; i < g_deviceCount - 1; ++i) {
-        g_devices[i] = g_devices[i + 1];
-    }
-    
-    // 總數減 1
-    g_deviceCount--;
+    deviceController->deleteDevice(idx);
 
     QMessageBox::information(this, "Deleted", "Device deleted successfully.");
 

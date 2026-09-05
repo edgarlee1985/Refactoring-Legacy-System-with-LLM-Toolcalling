@@ -26,3 +26,17 @@ void DeviceDialogController::setDevice(int idx, DeviceConfig* deivce)
     g_devices[idx].isCalibrated = deivce->isCalibrated;
     g_devices[idx].thresholdValue = deivce->thresholdValue;
 }
+
+void DeviceDialogController::deleteDevice(int idx)
+{
+    if (idx < 0 || idx >= g_deviceCount) return;
+
+    // 將刪除目標後方的所有 Device 往前移
+    for (int i = idx; i < g_deviceCount - 1; ++i)
+    {
+        g_devices[i] = g_devices[i + 1];
+    }
+    
+    // 總數減 1
+    g_deviceCount--;
+}
