@@ -158,15 +158,16 @@ void DeviceDialog::refreshDeviceList()
     QStringList typeNames = {"Sensor", "Actuator", "Relay"};
     
     // 迴圈讀取全域陣列來重建清單
-    for (int i = 0; i < g_deviceCount; ++i) {
-        QString devInfo = g_devices[i].deviceName;
+    for (int i = 0; i < deviceController->getDeviceCount(); ++i) {
+        DeviceConfig* device = deviceController->getDevice(i);
+        QString devInfo = device->deviceName;
         
-        int typeIdx = g_devices[i].deviceType;
+        int typeIdx = device->deviceType;
         QString typeStr = (typeIdx >= 0 && typeIdx < typeNames.size()) ? typeNames[typeIdx] : "Unknown";
         
         devInfo += " [" + typeStr + "] ";
-        devInfo += g_devices[i].isActive ? "(Active)" : "(Inactive)";
-        devInfo += " | Thr: " + QString::number(g_devices[i].thresholdValue);
+        devInfo += device->isActive ? "(Active)" : "(Inactive)";
+        devInfo += " | Thr: " + QString::number(device->thresholdValue);
         
         // 將組合好的字串加入 QListWidget
         listDevices->addItem(devInfo);

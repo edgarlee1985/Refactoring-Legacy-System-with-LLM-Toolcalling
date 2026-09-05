@@ -11,6 +11,11 @@ DeviceDialogController::~DeviceDialogController()
 
 }
 
+int DeviceDialogController::getDeviceCount() const
+{
+    return g_deviceCount;
+}
+
 DeviceConfig* DeviceDialogController::getDevice(int idx)
 {
     return &g_devices[idx];
