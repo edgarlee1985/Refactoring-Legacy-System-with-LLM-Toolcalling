@@ -64,10 +64,11 @@ void UserDialog::onUserSelected()
         btnDeleteUser->setEnabled(true);
     }
 
+    UserInfo* userInfo = userController->getUserInfo(idx);
     // 將資料倒回 UI
-    txtUsername->setText(g_users[idx].username);
-    chkEditDevice->setChecked(g_users[idx].canEditDevices);
-    chkRunOps->setChecked(g_users[idx].canRunOps);
+    txtUsername->setText(userInfo->username);
+    chkEditDevice->setChecked(userInfo->canEditDevices);
+    chkRunOps->setChecked(userInfo->canRunOps);
 }
 
 void UserDialog::onUpdateUser()
