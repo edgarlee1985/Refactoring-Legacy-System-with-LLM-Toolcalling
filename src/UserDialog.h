@@ -8,6 +8,7 @@
 #include <QListWidget>
 #include "GlobalData.h"
 
+class UserDialogController;
 class UserDialog : public QDialog {
     Q_OBJECT
 public:
@@ -28,4 +29,6 @@ private:
     QPushButton* btnAddUser;
     QPushButton* btnUpdateUser;
     QPushButton* btnDeleteUser;
+
+    UserDialogController* userController;
 };

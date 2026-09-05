@@ -1,8 +1,11 @@
 #include "UserDialog.h"
+#include "UserDialogController.h"
 
 UserDialog::UserDialog(QWidget *parent)
 : QDialog(parent)
 {
+    userController = new UserDialogController();
+    
     setWindowTitle("User Permissions");
     QVBoxLayout* layout = new QVBoxLayout(this);
 

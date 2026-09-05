@@ -22,6 +22,7 @@ set(srcs
     ./src/UserDialog.cpp
     ./src/OperationDialog.cpp
     ./src/DeviceDialogController.cpp
+    ./src/UserDialogController.cpp
 )
 
 set(headers
@@ -31,6 +32,7 @@ set(headers
     ./src/UserDialog.h
     ./src/OperationDialog.h
     ./src/DeviceDialogController.h
+    ./src/UserDialogController.h
 )
 
 # 【新增】明確列出 UI 檔
