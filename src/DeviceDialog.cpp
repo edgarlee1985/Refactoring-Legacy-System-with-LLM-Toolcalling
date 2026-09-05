@@ -1,0 +1,171 @@
+#include "DeviceDialog.h"
+
+DeviceDialog::DeviceDialog(QWidget *parent)
+: QDialog(parent)
+{
+    setWindowTitle("Device Configuration (Legacy)");
+    QVBoxLayout* layout = new QVBoxLayout(this);
+
+    listDevices = new QListWidget(this);
+
+    txtName = new QLineEdit(this);
+    txtName->setPlaceholderText("Device Name");
+    
+    comboType = new QComboBox(this);
+    comboType->addItems({"Sensor", "Actuator", "Relay"});
+    
+    chkActive = new QCheckBox("Is Active", this);
+    chkAutoMode = new QCheckBox("Enable Auto Mode", this);
+    chkCalibrated = new QCheckBox("Is Calibrated", this);
+    
+    txtThreshold = new QLineEdit(this);
+    txtThreshold->setPlaceholderText("Threshold Value (int)");
+
+    btnSave = new QPushButton("Add New Device", this);
+    
+    btnUpdate = new QPushButton("Update Selected Device", this);
+    btnUpdate->setEnabled(false);
+
+    btnDelete = new QPushButton("Delete Selected Device", this);
+    btnDelete->setEnabled(false);
+
+    layout->addWidget(listDevices);
+    layout->addWidget(txtName);
+    layout->addWidget(comboType);
+    layout->addWidget(chkActive);
+    layout->addWidget(chkAutoMode);
+    layout->addWidget(chkCalibrated);
+    layout->addWidget(txtThreshold);
+    layout->addWidget(btnSave);
+    layout->addWidget(btnUpdate);
+    layout->addWidget(btnDelete);
+
+    connect(btnSave, &QPushButton::clicked, this, &DeviceDialog::onSaveClicked);
+    connect(listDevices, &QListWidget::itemSelectionChanged, this, &DeviceDialog::onDeviceSelected);
+    connect(btnUpdate, &QPushButton::clicked, this, &DeviceDialog::onUpdateClicked);
+    connect(btnDelete, &QPushButton::clicked, this, &DeviceDialog::onDeleteClicked);
+
+    // 視窗建立時，先載入一次目前的列表
+    refreshDeviceList();
+}
+
+void DeviceDialog::onDeviceSelected()
+{
+    int idx = listDevices->currentRow();
+    if (idx < 0 || idx >= g_deviceCount) {
+        btnUpdate->setEnabled(false);
+        return;
+    }
+
+    btnUpdate->setEnabled(true);
+    btnDelete->setEnabled(true);
+
+    // 回填 UI 狀態
+    txtName->setText(g_devices[idx].deviceName);
+    comboType->setCurrentIndex(g_devices[idx].deviceType);
+    chkActive->setChecked(g_devices[idx].isActive);
+    chkAutoMode->setChecked(g_devices[idx].hasAutoMode);
+    chkCalibrated->setChecked(g_devices[idx].isCalibrated);
+    txtThreshold->setText(QString::number(g_devices[idx].thresholdValue));
+}
+
+void DeviceDialog::onUpdateClicked()
+{
+    int idx = listDevices->currentRow();
+    if (idx < 0 || idx >= g_deviceCount) return;
+
+    g_devices[idx].deviceName = txtName->text();
+    g_devices[idx].deviceType = comboType->currentIndex();
+    g_devices[idx].isActive = chkActive->isChecked();
+    g_devices[idx].hasAutoMode = chkAutoMode->isChecked();
+    g_devices[idx].isCalibrated = chkCalibrated->isChecked();
+    g_devices[idx].thresholdValue = txtThreshold->text().toInt();
+
+    QMessageBox::information(this, "Updated", "Device updated successfully.");
+
+    refreshDeviceList();
+    
+    // 重新選中剛剛更新的項目
+    listDevices->setCurrentRow(idx);
+}
+
+void DeviceDialog::onDeleteClicked()
+{
+    int idx = listDevices->currentRow();
+    if (idx < 0 || idx >= g_deviceCount) return;
+
+    // 將刪除目標後方的所有 Device 往前移
+    for (int i = idx; i < g_deviceCount - 1; ++i) {
+        g_devices[i] = g_devices[i + 1];
+    }
+    
+    // 總數減 1
+    g_deviceCount--;
+
+    QMessageBox::information(this, "Deleted", "Device deleted successfully.");
+
+    refreshDeviceList();
+    
+    // 清空狀態與鎖定按鈕
+    txtName->clear();
+    comboType->setCurrentIndex(0);
+    chkActive->setChecked(false);
+    chkAutoMode->setChecked(false);
+    chkCalibrated->setChecked(false);
+    txtThreshold->clear();
+    btnUpdate->setEnabled(false);
+    btnDelete->setEnabled(false);
+}
+
+void DeviceDialog::onSaveClicked()
+{
+    if (g_deviceCount >= MAX_DEVICES)
+    {
+        QMessageBox::warning(this, "Error", "Device array is full!");
+        return;
+    }
+
+    g_devices[g_deviceCount].deviceName = txtName->text();
+    g_devices[g_deviceCount].deviceType = comboType->currentIndex();
+    g_devices[g_deviceCount].isActive = chkActive->isChecked();
+    g_devices[g_deviceCount].hasAutoMode = chkAutoMode->isChecked();
+    g_devices[g_deviceCount].isCalibrated = chkCalibrated->isChecked();
+    g_devices[g_deviceCount].thresholdValue = txtThreshold->text().toInt();
+    
+    g_deviceCount++;
+    QMessageBox::information(this, "Saved", "Device appended to g_devices[]");
+
+    // 重新整理 UI 列表
+    refreshDeviceList();
+
+    // 清空輸入框狀態，準備輸入下一個 Device
+    txtName->clear();
+    comboType->setCurrentIndex(0);
+    chkActive->setChecked(false);
+    chkAutoMode->setChecked(false);
+    chkCalibrated->setChecked(false);
+    txtThreshold->clear();
+}
+
+void DeviceDialog::refreshDeviceList()
+{
+    // 清空舊畫面資料
+    listDevices->clear();
+    
+    QStringList typeNames = {"Sensor", "Actuator", "Relay"};
+    
+    // 迴圈讀取全域陣列來重建清單
+    for (int i = 0; i < g_deviceCount; ++i) {
+        QString devInfo = g_devices[i].deviceName;
+        
+        int typeIdx = g_devices[i].deviceType;
+        QString typeStr = (typeIdx >= 0 && typeIdx < typeNames.size()) ? typeNames[typeIdx] : "Unknown";
+        
+        devInfo += " [" + typeStr + "] ";
+        devInfo += g_devices[i].isActive ? "(Active)" : "(Inactive)";
+        devInfo += " | Thr: " + QString::number(g_devices[i].thresholdValue);
+        
+        // 將組合好的字串加入 QListWidget
+        listDevices->addItem(devInfo);
+    }
+}
