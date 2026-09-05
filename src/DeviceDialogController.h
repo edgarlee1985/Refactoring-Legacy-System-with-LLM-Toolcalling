@@ -9,4 +9,6 @@ public:
     ~DeviceDialogController();
 
     DeviceConfig* getDevice(int idx);
+    void setDevice(int idx, DeviceConfig* deivce);
+
 };

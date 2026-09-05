@@ -79,12 +79,14 @@ void DeviceDialog::onUpdateClicked()
     int idx = listDevices->currentRow();
     if (idx < 0 || idx >= g_deviceCount) return;
 
-    g_devices[idx].deviceName = txtName->text();
-    g_devices[idx].deviceType = comboType->currentIndex();
-    g_devices[idx].isActive = chkActive->isChecked();
-    g_devices[idx].hasAutoMode = chkAutoMode->isChecked();
-    g_devices[idx].isCalibrated = chkCalibrated->isChecked();
-    g_devices[idx].thresholdValue = txtThreshold->text().toInt();
+    DeviceConfig* deivce = new DeviceConfig;
+    deivce->deviceName = txtName->text();
+    deivce->deviceType = comboType->currentIndex();
+    deivce->isActive = chkActive->isChecked();
+    deivce->hasAutoMode = chkAutoMode->isChecked();
+    deivce->isCalibrated = chkCalibrated->isChecked();
+    deivce->thresholdValue = txtThreshold->text().toInt();
+    deviceController->setDevice(idx, deivce);
 
     QMessageBox::information(this, "Updated", "Device updated successfully.");
 
