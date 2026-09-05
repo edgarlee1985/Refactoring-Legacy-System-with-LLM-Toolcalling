@@ -40,3 +40,15 @@ void DeviceDialogController::deleteDevice(int idx)
     // 總數減 1
     g_deviceCount--;
 }
+
+void DeviceDialogController::addNewDevice(const DeviceConfig* neweivce)
+{
+    g_devices[g_deviceCount].deviceName = neweivce->deviceName;
+    g_devices[g_deviceCount].deviceType = neweivce->deviceType;
+    g_devices[g_deviceCount].isActive = neweivce->isActive;
+    g_devices[g_deviceCount].hasAutoMode = neweivce->hasAutoMode;
+    g_devices[g_deviceCount].isCalibrated = neweivce->isCalibrated;
+    g_devices[g_deviceCount].thresholdValue = neweivce->thresholdValue;
+
+    g_deviceCount++;
+}

@@ -126,14 +126,16 @@ void DeviceDialog::onSaveClicked()
         return;
     }
 
-    g_devices[g_deviceCount].deviceName = txtName->text();
-    g_devices[g_deviceCount].deviceType = comboType->currentIndex();
-    g_devices[g_deviceCount].isActive = chkActive->isChecked();
-    g_devices[g_deviceCount].hasAutoMode = chkAutoMode->isChecked();
-    g_devices[g_deviceCount].isCalibrated = chkCalibrated->isChecked();
-    g_devices[g_deviceCount].thresholdValue = txtThreshold->text().toInt();
-    
-    g_deviceCount++;
+    DeviceConfig* deivce = new DeviceConfig;
+    deivce->deviceName = txtName->text();
+    deivce->deviceType = comboType->currentIndex();
+    deivce->isActive = chkActive->isChecked();
+    deivce->hasAutoMode = chkAutoMode->isChecked();
+    deivce->isCalibrated = chkCalibrated->isChecked();
+    deivce->thresholdValue = txtThreshold->text().toInt();
+
+    deviceController->addNewDevice(deivce);
+
     QMessageBox::information(this, "Saved", "Device appended to g_devices[]");
 
     // 重新整理 UI 列表

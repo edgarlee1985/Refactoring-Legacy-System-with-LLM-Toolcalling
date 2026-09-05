@@ -12,5 +12,6 @@ public:
     void setDevice(int idx, DeviceConfig* deivce);
 
     void deleteDevice(int idx);
+    void addNewDevice(const DeviceConfig* newDeivce);
 
 };
