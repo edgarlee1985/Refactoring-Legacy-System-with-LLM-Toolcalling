@@ -46,7 +46,7 @@ UserDialog::UserDialog(QWidget *parent)
 void UserDialog::onUserSelected()
 {
     int idx = listUsers->currentRow();
-    if (idx < 0 || idx >= g_userCount) {
+    if (idx < 0 || idx >= userController->getUserInfoCount()) {
         btnUpdateUser->setEnabled(false);
         btnDeleteUser->setEnabled(false);
         return;
@@ -71,7 +71,7 @@ void UserDialog::onUserSelected()
 void UserDialog::onUpdateUser()
 {
     int idx = listUsers->currentRow();
-    if (idx < 0 || idx >= g_userCount) return;
+    if (idx < 0 || idx >= userController->getUserInfoCount()) return;
 
     UserInfo* userInfo = new UserInfo;
 
@@ -95,7 +95,7 @@ void UserDialog::onDeleteUser()
     int idx = listUsers->currentRow();
     
     // 再次檢查，確保不會誤刪 Admin 或越界
-    if (idx <= 0 || idx >= g_userCount) return;
+    if (idx <= 0 || idx >= userController->getUserInfoCount()) return;
 
     userController->deleteUserInfo(idx);
     
@@ -113,7 +113,7 @@ void UserDialog::onDeleteUser()
 
 void UserDialog::onAddUser()
 {
-    if (g_userCount >= MAX_USERS) {
+    if (userController->getUserInfoCount() >= MAX_USERS) {
         QMessageBox::warning(this, "Error", "User Array is FULL!");
         return; 
     }
@@ -141,17 +141,18 @@ void UserDialog::refreshUserList()
 {
     listUsers->clear();
     
-    for (int i = 0; i < g_userCount; ++i) {
-        QString userInfo = g_users[i].username;
+    for (int i = 0; i < userController->getUserInfoCount(); ++i) {
+        UserInfo* userInfo = userController->getUserInfo(i);
+        QString userInfoText = userInfo->username;
         
         // 判斷權限並附加到顯示字串後方
-        if (g_users[i].isAdmin) {
-            userInfo += " [Admin]";
+        if (userInfo->isAdmin) {
+            userInfoText += " [Admin]";
         } else {
-            userInfo += " (Edit: " + QString(g_users[i].canEditDevices ? "Y" : "N") + 
-                        ", Run: " + QString(g_users[i].canRunOps ? "Y" : "N") + ")";
+            userInfoText += " (Edit: " + QString(userInfo->canEditDevices ? "Y" : "N") + 
+                        ", Run: " + QString(userInfo->canRunOps ? "Y" : "N") + ")";
         }
         
-        listUsers->addItem(userInfo);
+        listUsers->addItem(userInfoText);
     }
 }

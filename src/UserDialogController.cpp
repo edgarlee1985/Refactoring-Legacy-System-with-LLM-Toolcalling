@@ -20,6 +20,11 @@ void UserDialogController::initializeUserInfo()
     }
 }
 
+int UserDialogController::getUserInfoCount() const
+{
+    return g_userCount;
+}
+
 UserInfo* UserDialogController::getUserInfo(int idx) const
 {
     return &g_users[idx];
