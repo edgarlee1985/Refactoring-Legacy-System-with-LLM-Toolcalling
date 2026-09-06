@@ -24,6 +24,8 @@ set(srcs
     ./src/DeviceDialogController.cpp
     ./src/UserDialogController.cpp
     ./src/OperationDialogController.cpp
+    ./test/TestDeviceOperation.cpp
+    ./test/OldOperationDialogController.cpp
 )
 
 set(headers
@@ -35,6 +37,8 @@ set(headers
     ./src/DeviceDialogController.h
     ./src/UserDialogController.h
     ./src/OperationDialogController.h
+    ./test/TestDeviceOperation.h
+    ./test/OldOperationDialogController.h
 )
 
 # 【新增】明確列出 UI 檔
@@ -46,11 +50,16 @@ set(uis
 add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
 add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
 
-add_executable(${PROJECT_NAME}
-    WIN32 # If you need a terminal for debug, please comment this statement
-    ${srcs}      # 加入所有 .cpp
-    ${headers}   # 加入所有 .h
-    ${uis}       # 加入所有 .ui
+# 產品模式 (保留 WIN32，編譯為純 GUI)
+add_executable(${PROJECT_NAME} WIN32
+    ${srcs} ${headers} ${uis}
 ) 
-
 target_link_libraries(${PROJECT_NAME} PRIVATE Qt5::Widgets)
+
+# 測試模式 (移除 WIN32，編譯為 Console 應用程式)
+add_executable(${PROJECT_NAME}_Test
+    ${srcs} ${headers} ${uis}
+) 
+target_link_libraries(${PROJECT_NAME}_Test PRIVATE Qt5::Widgets)
+# 關鍵：為測試版注入編譯巨集
+target_compile_definitions(${PROJECT_NAME}_Test PRIVATE TEST_MODE)
