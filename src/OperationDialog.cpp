@@ -42,33 +42,7 @@ void OperationDialog::runOperations()
     txtOutput->append("Starting operations as: " + currentUser.username + "...\n");
 
     // 巡覽全域陣列，執行不同 Device 的混亂邏輯
-    for (int i = 0; i < g_deviceCount; ++i) {
-        if (!g_devices[i].isActive) {
-            txtOutput->append("Skipping inactive device: " + g_devices[i].deviceName);
-            continue;
-        }
-
-        if (g_devices[i].deviceType == 0) { // Sensor
-            if (g_devices[i].isCalibrated) {
-                int mockData = rand() % 100;
-                txtOutput->append("[Sensor] " + g_devices[i].deviceName + " reading is " + QString::number(mockData));
-                if (mockData > g_devices[i].thresholdValue) {
-                        txtOutput->append("   -> ALARM: Threshold exceeded!");
-                }
-            } else {
-                txtOutput->append("[Sensor] " + g_devices[i].deviceName + " failed: Not Calibrated.");
-            }
-        } 
-        else if (g_devices[i].deviceType == 1) { // Actuator
-            if (g_devices[i].hasAutoMode && g_devices[i].thresholdValue > 50) {
-                txtOutput->append("[Actuator] " + g_devices[i].deviceName + " auto-triggered with power " + QString::number(g_devices[i].thresholdValue));
-            } else {
-                txtOutput->append("[Actuator] " + g_devices[i].deviceName + " idle.");
-            }
-        }
-        else if (g_devices[i].deviceType == 2) { // Relay
-            txtOutput->append("[Relay] " + g_devices[i].deviceName + " clicked ON.");
-        }
-    }
+    QString text = operationController->deviceCompute(&currentUser);
+    txtOutput->append(text);
     txtOutput->append("\nOperation routine finished.");
 }
