@@ -6,6 +6,8 @@
 #include <QVBoxLayout>
 #include "GlobalData.h"
 
+class OperationDialogController;
+
 class OperationDialog : public QDialog {
     Q_OBJECT
 public:
@@ -17,4 +19,6 @@ private slots:
 private:
     QComboBox* comboUser;
     QTextEdit* txtOutput;
+
+    OperationDialogController* operationController;
 };

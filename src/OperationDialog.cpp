@@ -1,8 +1,11 @@
 #include "OperationDialog.h"
+#include "OperationDialogController.h"
 
 OperationDialog::OperationDialog(QWidget *parent)
 : QDialog(parent)
 {
+    operationController = new OperationDialogController();
+
     setWindowTitle("Operations Run (Spaghetti Logic)");
     QVBoxLayout* layout = new QVBoxLayout(this);
 
