@@ -55,7 +55,7 @@ DeviceDialog::DeviceDialog(QWidget *parent)
 void DeviceDialog::onDeviceSelected()
 {
     int idx = listDevices->currentRow();
-    if (idx < 0 || idx >= g_deviceCount) {
+    if (idx < 0 || idx >= deviceController->getDeviceCount()) {
         btnUpdate->setEnabled(false);
         return;
     }
@@ -77,7 +77,7 @@ void DeviceDialog::onDeviceSelected()
 void DeviceDialog::onUpdateClicked()
 {
     int idx = listDevices->currentRow();
-    if (idx < 0 || idx >= g_deviceCount) return;
+    if (idx < 0 || idx >= deviceController->getDeviceCount()) return;
 
     DeviceConfig* deivce = new DeviceConfig;
     deivce->deviceName = txtName->text();
@@ -99,7 +99,7 @@ void DeviceDialog::onUpdateClicked()
 void DeviceDialog::onDeleteClicked()
 {
     int idx = listDevices->currentRow();
-    if (idx < 0 || idx >= g_deviceCount) return;
+    if (idx < 0 || idx >= deviceController->getDeviceCount()) return;
 
     deviceController->deleteDevice(idx);
 
@@ -120,7 +120,7 @@ void DeviceDialog::onDeleteClicked()
 
 void DeviceDialog::onSaveClicked()
 {
-    if (g_deviceCount >= MAX_DEVICES)
+    if (deviceController->getDeviceCount() >= MAX_DEVICES)
     {
         QMessageBox::warning(this, "Error", "Device array is full!");
         return;
