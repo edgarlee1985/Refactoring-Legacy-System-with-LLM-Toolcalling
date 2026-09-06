@@ -11,6 +11,15 @@ UserDialogController::~UserDialogController()
     
 }
 
+void UserDialogController::initializeUserInfo()
+{
+    // 初始化預設 Admin (如果還沒初始化過)
+    if (g_userCount == 0) {
+        g_users[0] = {"Admin", true, true, true};
+        g_userCount++;
+    }
+}
+
 UserInfo* UserDialogController::getUserInfo(int idx) const
 {
     return &g_users[idx];

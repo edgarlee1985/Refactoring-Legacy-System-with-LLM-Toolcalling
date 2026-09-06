@@ -10,10 +10,7 @@ UserDialog::UserDialog(QWidget *parent)
     QVBoxLayout* layout = new QVBoxLayout(this);
 
     // 初始化預設 Admin (如果還沒初始化過)
-    if (g_userCount == 0) {
-        g_users[0] = {"Admin", true, true, true};
-        g_userCount++;
-    }
+    userController->initializeUserInfo();
 
     listUsers = new QListWidget(this);
 
