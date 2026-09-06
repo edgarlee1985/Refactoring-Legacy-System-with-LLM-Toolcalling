@@ -100,13 +100,8 @@ void UserDialog::onDeleteUser()
     // 再次檢查，確保不會誤刪 Admin 或越界
     if (idx <= 0 || idx >= g_userCount) return;
 
-    for (int i = idx; i < g_userCount - 1; ++i) {
-        g_users[i] = g_users[i + 1];
-    }
+    userController->deleteUserInfo(idx);
     
-    // 總數減 1
-    g_userCount--;
-
     QMessageBox::information(this, "Deleted", "User deleted successfully.");
     
     refreshUserList();
