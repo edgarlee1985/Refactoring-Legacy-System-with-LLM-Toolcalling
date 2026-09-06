@@ -1,0 +1,44 @@
+{
+  "users": [
+    {
+      "username": "Operator_A",
+      "isAdmin": false,
+      "canEditDevices": true,
+      "canRunOps": true
+    }
+  ],
+  "devices": [
+    {
+      "deviceName": "TempSensor_01",
+      "deviceType": 0,
+      "isActive": true,
+      "isCalibrated": true,
+      "thresholdValue": 40,
+      "hasAutoMode": false
+    },
+    {
+      "deviceName": "MainValve_01",
+      "deviceType": 1,
+      "isActive": true,
+      "isCalibrated": true,
+      "thresholdValue": 75,
+      "hasAutoMode": true
+    },
+    {
+      "deviceName": "PowerRelay_01",
+      "deviceType": 2,
+      "isActive": true,
+      "isCalibrated": true,
+      "thresholdValue": 0,
+      "hasAutoMode": false
+    },
+    {
+      "deviceName": "OldSensor_Broken",
+      "deviceType": 0,
+      "isActive": false,
+      "isCalibrated": false,
+      "thresholdValue": 0,
+      "hasAutoMode": false
+    }
+  ]
+}

@@ -5,7 +5,12 @@
 #include "../src/GlobalData.h"
 #include "OldOperationDialogController.h"
 
+#include <QFile>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
 #include <QDebug>
+#include <QApplication>
 #include <cstdlib> // 提供 srand()
 
 enum TestResultCode {
@@ -24,61 +29,67 @@ int TestDeviceOperationCase()
     OldOperationDialogController* oldOperationController = new OldOperationDialogController();
 
     // ==========================================
-    // 1. 補齊 User 測試資料
+    // 讀取外部 JSON 檔案
     // ==========================================
-    // 初始化預設 Admin 帳號
+    QString exePath = QCoreApplication::applicationDirPath();
+    QString filePath = exePath + "/../test/test_data.json";
+    QFile file(filePath);
+
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qCritical() << "[TEST FAILED] Cannot open test_data.json. Make sure it is in the working directory.";
+        return TEST_ERR_FILE_MISSING;
+    }
+    
+    QByteArray fileData = file.readAll();
+    file.close();
+    
+    QJsonDocument jsonDoc = QJsonDocument::fromJson(fileData);
+    if (jsonDoc.isNull() || !jsonDoc.isObject()) {
+        qCritical() << "[TEST FAILED] Invalid JSON format in test_data.json.";
+        return TEST_ERR_FILE_MISSING;
+    }
+    QJsonObject rootObj = jsonDoc.object();
+
+    // ==========================================
+    // 從 JSON 補齊 User 測試資料
+    // ==========================================
     userController->initializeUserInfo(); 
 
-    // 隨機新增一名一般使用者
     UserInfo testUser;
-    testUser.username = "Operator_A";
-    testUser.isAdmin = false;
-    testUser.canEditDevices = true;
-    testUser.canRunOps = true;
-    userController->addNewUserInfo(&testUser); 
+    QJsonArray usersArray = rootObj["users"].toArray();
+    if (!usersArray.isEmpty()) {
+        QJsonObject uObj = usersArray[0].toObject();
+        testUser.username = uObj["username"].toString();
+        testUser.isAdmin = uObj["isAdmin"].toBool();
+        testUser.canEditDevices = uObj["canEditDevices"].toBool();
+        testUser.canRunOps = uObj["canRunOps"].toBool();
+        
+        userController->addNewUserInfo(&testUser); 
+    } else {
+        qCritical() << "[TEST FAILED] No user data found in JSON.";
+        return TEST_ERR_FILE_MISSING;
+    }
 
     // ==========================================
-    // 2. 補齊 Device 測試資料
+    // 從 JSON 補齊 Device 測試資料
     // ==========================================
-    
     // 參數矩陣, 全由 LLM 生成
-    DeviceConfig devSensor;
-    devSensor.deviceName = "TempSensor_01";
-    devSensor.deviceType = 0; 
-    devSensor.isActive = true;
-    devSensor.isCalibrated = true;
-    devSensor.thresholdValue = 40; 
-    devSensor.hasAutoMode = false;
-    deviceController->addNewDevice(&devSensor); 
+    QJsonArray devicesArray = rootObj["devices"].toArray();
+    for (int i = 0; i < devicesArray.size(); ++i) {
+        QJsonObject dObj = devicesArray[i].toObject();
+        
+        DeviceConfig dev;
+        dev.deviceName = dObj["deviceName"].toString();
+        dev.deviceType = dObj["deviceType"].toInt();
+        dev.isActive = dObj["isActive"].toBool();
+        dev.isCalibrated = dObj["isCalibrated"].toBool();
+        dev.thresholdValue = dObj["thresholdValue"].toInt();
+        dev.hasAutoMode = dObj["hasAutoMode"].toBool();
+        
+        deviceController->addNewDevice(&dev);
+    }
 
-    DeviceConfig devActuator;
-    devActuator.deviceName = "MainValve_01";
-    devActuator.deviceType = 1; 
-    devActuator.isActive = true;
-    devActuator.isCalibrated = true;
-    devActuator.thresholdValue = 75; 
-    devActuator.hasAutoMode = true; 
-    deviceController->addNewDevice(&devActuator);
-
-    DeviceConfig devRelay;
-    devRelay.deviceName = "PowerRelay_01";
-    devRelay.deviceType = 2; 
-    devRelay.isActive = true;
-    devRelay.isCalibrated = true;
-    devRelay.thresholdValue = 0;
-    devRelay.hasAutoMode = false;
-    deviceController->addNewDevice(&devRelay); 
-
-    DeviceConfig devInactive;
-    devInactive.deviceName = "OldSensor_Broken";
-    devInactive.deviceType = 0;
-    devInactive.isActive = false; 
-    devInactive.isCalibrated = false;
-    devInactive.thresholdValue = 0;
-    devInactive.hasAutoMode = false;
-    deviceController->addNewDevice(&devInactive);
-
-    // 3. 執行測試前，控制隨機數種子以確保兩次執行的 mockData 完全相同
+    // 執行測試前，控制隨機數種子以確保兩次執行的 mockData 完全相同
     int fixedSeed = 12345;
 
     // 執行舊邏輯
@@ -95,7 +106,7 @@ int TestDeviceOperationCase()
     delete operationController;
     delete oldOperationController;
 
-    // 4. 斷言與詳細錯誤訊息輸出
+    // 斷言與詳細錯誤訊息輸出
     if (newOutput != oldOutput) {
         // 使用 qCritical() 或 qWarning() 輸出紅字/警告等級的訊息
         qCritical() << "[TEST FAILED] TestDeviceOperationCase: Output mismatch!";
