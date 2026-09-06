@@ -121,12 +121,14 @@ void UserDialog::onAddUser()
         return; 
     }
 
-    g_users[g_userCount].username = txtUsername->text();
-    g_users[g_userCount].isAdmin = false;
-    g_users[g_userCount].canEditDevices = chkEditDevice->isChecked();
-    g_users[g_userCount].canRunOps = chkRunOps->isChecked();
-    
-    g_userCount++;
+    UserInfo* newUserInfo = new UserInfo;
+    newUserInfo->username = txtUsername->text();
+    newUserInfo->isAdmin = false;
+    newUserInfo->canEditDevices = chkEditDevice->isChecked();
+    newUserInfo->canRunOps = chkRunOps->isChecked();
+
+    userController->addNewUserInfo(newUserInfo);
+
     QMessageBox::information(this, "Success", "User added to g_users[]");
     
     // 重新整理 UI 列表

@@ -36,3 +36,13 @@ void UserDialogController::deleteUserInfo(int idx)
     // 總數減 1
     g_userCount--;
 }
+
+void UserDialogController::addNewUserInfo(UserInfo* userInfo)
+{
+    g_users[g_userCount].username = userInfo->username;
+    g_users[g_userCount].isAdmin = false;
+    g_users[g_userCount].canEditDevices = userInfo->canEditDevices;
+    g_users[g_userCount].canRunOps = userInfo->canRunOps;
+    
+    g_userCount++;
+}
