@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5) # CMake install : https://cmake.org/download/
+cmake_minimum_required(VERSION 3.14)
 project(QtLegacyProject LANGUAGES CXX)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -13,6 +13,17 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Qt5 COMPONENTS Widgets REQUIRED) # Qt COMPONENTS
 
+include(FetchContent)
+FetchContent_Declare(
+  googletest
+  URL https://github.com/google/googletest/archive/refs/tags/release-1.12.1.zip
+  SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/test/vendor/googletest
+)
+# 避免 GTest 覆蓋 Windows 下的 Runtime Library 設定
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE) 
+FetchContent_MakeAvailable(googletest)
+
+include_directories("./test/vendor/ApprovalTests")
 
 set(srcs
     ./src/main.cpp
@@ -26,6 +37,7 @@ set(srcs
     ./src/OperationDialogController.cpp
     ./test/TestDeviceOperation.cpp
     ./test/OldOperationDialogController.cpp
+    ./test/ApprovalTestDeviceOperation.cpp
 )
 
 set(headers
@@ -63,3 +75,18 @@ add_executable(${PROJECT_NAME}_Test
 target_link_libraries(${PROJECT_NAME}_Test PRIVATE Qt5::Widgets)
 # 關鍵：為測試版注入編譯巨集
 target_compile_definitions(${PROJECT_NAME}_Test PRIVATE TEST_MODE)
+
+# ==========================================
+# Google Test + Approval 測試模式
+# ==========================================
+add_executable(${PROJECT_NAME}_Approval_Test
+    ${srcs} ${headers} ${uis}
+) 
+# 連結 Qt、GTest 與 ApprovalTests
+target_link_libraries(${PROJECT_NAME}_Approval_Test 
+    PRIVATE 
+    Qt5::Widgets
+    gtest
+)
+# 注入全新的巨集
+target_compile_definitions(${PROJECT_NAME}_Approval_Test PRIVATE APPROVAL_TEST_MODE)
