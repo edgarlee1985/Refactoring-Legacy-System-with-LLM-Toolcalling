@@ -25,7 +25,7 @@ FetchContent_MakeAvailable(googletest)
 
 include_directories("./test/vendor/ApprovalTests")
 
-set(srcs
+set(core_srcs
     ./src/main.cpp
     ./src/QtLegacyProject.cpp
     ./src/GlobalData.cpp
@@ -35,12 +35,9 @@ set(srcs
     ./src/DeviceDialogController.cpp
     ./src/UserDialogController.cpp
     ./src/OperationDialogController.cpp
-    ./test/TestDeviceOperation.cpp
-    ./test/OldOperationDialogController.cpp
-    ./test/ApprovalTestDeviceOperation.cpp
 )
 
-set(headers
+set(core_headers
     ./src/QtLegacyProject.h
     ./src/GlobalData.h
     ./src/DeviceDialog.h
@@ -49,13 +46,26 @@ set(headers
     ./src/DeviceDialogController.h
     ./src/UserDialogController.h
     ./src/OperationDialogController.h
+)
+
+set(uis
+    ./src/QtLegacyProject.ui
+)
+
+# 測試模式專用檔案
+set(test_srcs
+    ./test/TestDeviceOperation.cpp
+    ./test/OldOperationDialogController.cpp
+)
+
+set(test_headers
     ./test/TestDeviceOperation.h
     ./test/OldOperationDialogController.h
 )
 
-# 【新增】明確列出 UI 檔
-set(uis
-    ./src/QtLegacyProject.ui
+# Approval Test 專用檔案
+set(approval_test_srcs
+    ./test/ApprovalTestDeviceOperation.cpp
 )
 
 # Specify MSVC UTF-8 encoding
@@ -64,14 +74,19 @@ add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
 
 # 產品模式 (保留 WIN32，編譯為純 GUI)
 add_executable(${PROJECT_NAME} WIN32
-    ${srcs} ${headers} ${uis}
-) 
+    ${core_srcs}
+    ${core_headers}
+    ${uis}
+)
 target_link_libraries(${PROJECT_NAME} PRIVATE Qt5::Widgets)
 
 # 測試模式 (移除 WIN32，編譯為 Console 應用程式)
 add_executable(${PROJECT_NAME}_Test
-    ${srcs} ${headers} ${uis}
-) 
+    ${core_srcs}
+    ${test_srcs} 
+    ${core_headers}
+    ${test_headers} 
+)
 target_link_libraries(${PROJECT_NAME}_Test PRIVATE Qt5::Widgets)
 # 關鍵：為測試版注入編譯巨集
 target_compile_definitions(${PROJECT_NAME}_Test PRIVATE TEST_MODE)
@@ -80,8 +95,12 @@ target_compile_definitions(${PROJECT_NAME}_Test PRIVATE TEST_MODE)
 # Google Test + Approval 測試模式
 # ==========================================
 add_executable(${PROJECT_NAME}_Approval_Test
-    ${srcs} ${headers} ${uis}
-) 
+    ${core_srcs}
+    ${test_srcs}
+    ${approval_test_srcs}
+    ${core_headers}
+    ${test_headers}
+)
 # 連結 Qt、GTest 與 ApprovalTests
 target_link_libraries(${PROJECT_NAME}_Approval_Test 
     PRIVATE 
