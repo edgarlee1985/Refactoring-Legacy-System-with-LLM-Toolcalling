@@ -60,3 +60,46 @@
 整個過程只有步驟1 是處於沒有測試覆蓋的狀況, 但步驟1 解的問題是最簡單的順序問題, 將風險降至最低. 步驟2 由於遺留系統初期沒有辦法撰寫單元測試, 所以轉為撰寫差異比對測試.步驟3 開始在有基礎測試安全網下進行重新設計, 重新設計出新的程式碼之後就可以改走現代軟體開發流程, 改為撰寫單元測試.
 
 程式說明:  
+Start  
+SHA-1: a37c56e1a92d5d764efc84a6272a62ef221c1b3c
+
+End  
+SHA-1: 9af68b9e4d2911f9bea498a02f8f92abe9f7955f
+
+* 目標為提取 Controller, 暫時不管既有程式碼其他設計問題. 因為這個階段沒有任何測試保護,一切以搬移程式碼為主, 避免產生 Bug.
+
+Start  
+SHA-1: 5bda58eb88a90da22b83404a25d4a661d2b16c98  
+End  
+SHA-1: af5bcda4d56a733a48369c571d4b3922aa6670c9
+
+* 新增 TEST\_MODE, 並複製一份 OldOperationDialogController, 以此為基準建立差異比對測試, **因為會重複執行兩次, 所以要注意待測函數執行兩次是否會結果不同**.  
+* 從這裡開始可以對 Controller 進行測試, 測試需要的資料與數值從外部輸入.  
+* 可以使用 LLM 建立資料與數值, 有嚴格資安問題可以使用地端模型進行資料生成.  
+* 可以使用雲端 LLM 撰寫地端模型的資料生成程式(LangChain \+ Ollama \+ RAG), 這樣做應該可以符合大部分公司的資安規範.  
+* 使用目前個人消費級的 GPU (RTX 5090, RAM 32GB)應該可以使用參數量大於 20B 的地端模型, 搭配  RAG 生成資料應該可以符合所需.  
+* 資料不完全正確也是可以進行測試, 此時建立的測試框架目的在取得資訊, 確認日常修改的程式碼是否都與舊版一致.
+
+Start  
+SHA-1: c9ed5780458ba739e159b5b98c6f985736a4223b
+
+End  
+SHA-1: 86a07dfe47159f87880a455ca4dd2190a561acf4
+
+* 上述的差異比較測試, 比較近似與正統的學名叫做 **Characterization Test**, **Golden Master Test**, **Snapshot Testing**, 有興趣瞭解可以搜尋相關資料.  
+* 新增 APPROVAL\_TEST\_MODE, 使用 ApprovalTests 進行測試.  
+* ApprovalTests 的不同點在於它不複製一份舊版程式碼, 它只記錄建立測試時的輸出數值, 之後發生錯誤無法追溯這個輸出值是來自哪一版程式碼(仰賴工程師紀律).  
+* 持續從各 UI 層分離 Controller, 並針對各別 Controller 逐一進行資料重構. 其實就演變成**絞殺者模式(Strangler Fig Pattern)**, 有興趣瞭解可以搜尋相關資料.
+
+Start  
+SHA-1: 82c4e50fe89ee45cd71f397846d866c166b0dcf1
+
+End  
+SHA-1: 9fa1d5f16995d8dae0a238874f2453972b7c86ae
+
+* 當 Controller 的提取完成並開始撰寫 Test 以後, 有經驗者必定會發現這些 Controller 是可以當成 Service, 重新將 UI 換皮進行重寫.  
+* 以這個案例而言, 實務上這些提取的 Controller 可以拿去開發新版 UI, Web 版程式. 這樣可以同時讓既有產品持續賺取收入, 也能逐步構建新的乾淨產品.  
+* 必須注意的是, 戰線增設越多對整體的技術能力要求會更高, 這邊提供的案例是將原本程式修改成 MCP Server, 串聯 LLM 做成可以呼叫外部程式的 Prototype.  
+* 新增 LLM\_MCP\_MODE, 將原本程式修改成 MCP Server, 並使用 MCPToolStrategy 封裝 Controller 成為 MCP Server 的溝通介面.  
+* 新增 [app.py](http://app.py), 這個 Python 程式是一個 LLM \+ MCP Server 的對話機器人, 可以透過對話呼叫 MCP Server 提供的介面完成工作.  
+* LLM 一旦可以串接外部實際運行的產品程式, 可以做到的事情非常廣泛(像是建立各種遊戲, 動畫建模), 這個案例主要展示一個低成本的 Prototype 執行方式(LLM 快速串接公司既有程式建立 Prototype).
