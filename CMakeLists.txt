@@ -68,6 +68,24 @@ set(approval_test_srcs
     ./test/ApprovalTestDeviceOperation.cpp
 )
 
+# MCP 專用檔案
+set(mcp_srcs
+    ./MCPToolStrategy/AddDeviceStrategy.cpp
+    ./MCPToolStrategy/AddUserInfoStrategy.cpp
+    ./MCPToolStrategy/ListUsersStrategy.cpp
+    ./MCPToolStrategy/DeviceComputeStrategy.cpp
+    ./MCPToolStrategy/TestDeviceOperationStrategy.cpp
+)
+
+set(mcp_headers
+    ./MCPToolStrategy/McpToolStrategy.h
+    ./MCPToolStrategy/AddDeviceStrategy.h
+    ./MCPToolStrategy/AddUserInfoStrategy.h
+    ./MCPToolStrategy/ListUsersStrategy.h
+    ./MCPToolStrategy/DeviceComputeStrategy.h
+    ./MCPToolStrategy/TestDeviceOperationStrategy.h
+)
+
 # Specify MSVC UTF-8 encoding
 add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
 add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
@@ -109,3 +127,18 @@ target_link_libraries(${PROJECT_NAME}_Approval_Test
 )
 # 注入全新的巨集
 target_compile_definitions(${PROJECT_NAME}_Approval_Test PRIVATE APPROVAL_TEST_MODE)
+
+# ==========================================
+# LLM MCP 模式
+# ==========================================
+add_executable(${PROJECT_NAME}_MCP
+    ${core_srcs}
+    ${mcp_srcs}
+    ${core_headers} 
+    ${mcp_headers}
+    ${test_srcs}
+)
+# 連結 Qt5::Widgets
+target_link_libraries(${PROJECT_NAME}_MCP PRIVATE Qt5::Widgets)
+# 關鍵：為 MCP 測試版注入編譯巨集
+target_compile_definitions(${PROJECT_NAME}_MCP PRIVATE LLM_MCP_MODE)
